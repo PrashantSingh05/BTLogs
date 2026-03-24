@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">Dashboard</h2>
+
+<!-- Refresh Button -->
+<div class="mb-3">
+    <button onclick="refreshPage()" class="btn btn-outline-primary btn-sm">
+        🔄 Refresh
+    </button>
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+
+<div class="col-md-3">
+<div class="card shadow p-3 text-center">
+<h6>Total Logs</h6>
+<h3>{{ total }}</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card shadow p-3 text-center border-danger">
+<h6>High Impact</h6>
+<h3 class="text-danger">{{ high }}</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card shadow p-3 text-center border-warning">
+<h6>Medium Impact</h6>
+<h3 class="text-warning">{{ medium }}</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card shadow p-3 text-center border-success">
+<h6>Low Impact</h6>
+<h3 class="text-success">{{ low }}</h3>
+</div>
+</div>
+
+</div>
+
+<div class="row">
+
+<!-- Latest Logs -->
+<div class="col-md-8">
+<div class="card shadow p-3">
+
+<h5 class="mb-3">Latest Logs</h5>
+
+<table class="table table-sm table-hover">
+<thead>
+<tr>
+<th>Title</th>
+<th>Category</th>
+<th>Action</th>
+<th>Impact</th>
+<th>Time</th>
+</tr>
+</thead>
+
+<tbody>
+{% for log in logs %}
+<tr>
+<td>{{ log['title'] }}</td>
+<td>{{ log['category'] }}</td>
+<td>{{ log['action_type'] }}</td>
+
+<td>
+{% if log['impact_level'] == 'high' %}
+<span class="badge bg-danger">High</span>
+{% elif log['impact_level'] == 'medium' %}
+<span class="badge bg-warning text-dark">Medium</span>
+{% else %}
+<span class="badge bg-success">Low</span>
+{% endif %}
+</td>
+
+<td>{{ log['timestamp'] }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+</div>
+</div>
+
+<!-- Category Chart -->
+<div class="col-md-4">
+<div class="card shadow p-3">
+
+<h6 class="mb-3">Category Distribution</h6>
+<canvas id="categoryChart" style="max-height:250px;"></canvas>
+
+</div>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+function refreshPage() {
+    location.reload();
+}
+
+// CATEGORY DATA
+let categoryCounts = {};
+
+{% for log in all_logs %}
+    if (categoryCounts["{{ log['category'] }}"]) {
+        categoryCounts["{{ log['category'] }}"] += 1;
+    } else {
+        categoryCounts["{{ log['category'] }}"] = 1;
+    }
+{% endfor %}
+
+// CHART
+new Chart(document.getElementById('categoryChart'), {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(categoryCounts),
+        datasets: [{
+            data: Object.values(categoryCounts),
+            backgroundColor: [
+                '#007bff','#28a745','#ffc107',
+                '#dc3545','#6f42c1','#20c997',
+                '#fd7e14','#6610f2'
+            ]
+        }]
+    }
+});
+</script>
+
+{% endblock %}

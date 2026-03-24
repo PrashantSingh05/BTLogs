@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">Logs</h2>
+
+<div class="mb-3">
+<a href="/export_all" class="btn btn-success">Export All</a>
+</div>
+
+<form method="POST" action="/export_selected">
+
+<table class="table table-bordered table-hover">
+
+<thead class="table-dark">
+<tr>
+<th>Select</th>
+<th>Title</th>
+<th>Action</th>
+<th>System</th>
+<th>Impact</th>
+<th>Time</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for log in logs %}
+<tr>
+
+<td>
+<input type="checkbox" name="selected_logs" value="{{ log['id'] }}">
+</td>
+
+<td>{{ log['title'] }}</td>
+<td>{{ log['action_type'] }}</td>
+<td>{{ log['system_name'] }}</td>
+
+<td>
+{% if log['impact_level'] == 'high' %}
+<span class="badge bg-danger">High</span>
+{% elif log['impact_level'] == 'medium' %}
+<span class="badge bg-warning text-dark">Medium</span>
+{% else %}
+<span class="badge bg-success">Low</span>
+{% endif %}
+</td>
+
+<td>{{ log['timestamp'] }}</td>
+
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+
+<button class="btn btn-primary">Export Selected</button>
+
+</form>
+
+{% endblock %}

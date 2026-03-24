@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3 class="mb-4">Admin Panel</h3>
+
+<div class="card shadow-sm p-3">
+
+<table class="table table-hover align-middle">
+
+<thead class="table-dark">
+<tr>
+<th>User</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for u in users %}
+<tr>
+
+<td>
+    <b>{{ u['username'] }}</b>
+</td>
+
+<td>
+    {% if u['role'] == 'pending' %}
+        <span class="badge bg-secondary">Pending</span>
+    {% elif u['role'] == 'admin' %}
+        <span class="badge bg-dark">Admin</span>
+    {% elif u['role'] == 'editor' %}
+        <span class="badge bg-warning text-dark">Editor</span>
+    {% else %}
+        <span class="badge bg-success">Viewer</span>
+    {% endif %}
+</td>
+
+<td>
+    {% if u['role'] == 'pending' %}
+        <a href="/approve/{{ u['id'] }}/viewer" class="btn btn-success btn-sm">Approve Viewer</a>
+        <a href="/approve/{{ u['id'] }}/editor" class="btn btn-warning btn-sm">Approve Editor</a>
+    {% else %}
+        <span class="text-muted">No action</span>
+    {% endif %}
+</td>
+
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endblock %}

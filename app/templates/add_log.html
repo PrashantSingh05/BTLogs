@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">Add System Record</h2>
+
+<form method="POST">
+
+<!-- 🔐 CSRF TOKEN -->
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+<label class="form-label">Title</label>
+<input name="title" class="form-control mb-3">
+
+<label class="form-label">Description</label>
+<textarea name="description" class="form-control mb-3"></textarea>
+
+<label class="form-label">Category</label>
+<select name="category" class="form-control mb-3">
+<option>hardware</option>
+<option>software</option>
+<option>network</option>
+<option>system</option>
+<option>security</option>
+<option>maintenance</option>
+<option>deployment</option>
+<option>other</option>
+</select>
+
+<label class="form-label">Action Type</label>
+<input name="action_type" class="form-control mb-3">
+
+<label class="form-label">Reason</label>
+<textarea name="reason" class="form-control mb-3"></textarea>
+
+<label class="form-label">Downtime (hours)</label>
+<input name="downtime" type="number" step="0.1" class="form-control mb-3">
+
+<label class="form-label">Tags</label>
+<input name="tags" class="form-control mb-3">
+
+<label class="form-label">System Name</label>
+<input name="system_name" class="form-control mb-3">
+
+<label class="form-label">User</label>
+<input name="created_by" class="form-control mb-3">
+
+<button class="btn btn-primary">Save</button>
+
+</form>
+
+{% endblock %}

@@ -1,0 +1,6 @@
+Flask
+Werkzeug
+python-dotenv
+flask-wtf
+flask-limiter
+flask-migrate
