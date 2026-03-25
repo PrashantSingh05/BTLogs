@@ -1,47 +1,42 @@
 import sqlite3
-from app.config import Config
+import os
 
-def init_db():
-    conn = sqlite3.connect(Config.DATABASE)
-    cursor = conn.cursor()
+DB_PATH = os.path.join(os.getcwd(), "instance", "logs.db")
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        password TEXT,
-        role TEXT DEFAULT 'pending'
-    )
-    """)
+os.makedirs("instance", exist_ok=True)
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT,
-        description TEXT,
-        category TEXT,
-        action_type TEXT,
-        reason TEXT,
-        downtime REAL,
-        impact_level TEXT,
-        tags TEXT,
-        system_name TEXT,
-        created_by TEXT,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
+conn = sqlite3.connect(DB_PATH)
+cursor = conn.cursor()
 
-    # Create Admin (your credentials)
-    cursor.execute("SELECT * FROM users WHERE username='admin'")
-    if not cursor.fetchone():
-        cursor.execute("""
-        INSERT INTO users (username, password, role)
-        VALUES ('admin', 'adminlogs', 'admin')
-        """)
+# 🔥 USERS TABLE (EMAIL BASED)
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE,
+    password TEXT,
+    role TEXT
+)
+""")
 
-    conn.commit()
-    conn.close()
-    print("DB ready with admin/adminlogs")
+# 🔥 LOGS TABLE
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    description TEXT,
+    category TEXT,
+    action_type TEXT,
+    reason TEXT,
+    downtime REAL,
+    impact_level TEXT,
+    tags TEXT,
+    system_name TEXT,
+    created_by TEXT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+""")
 
-if __name__ == "__main__":
-    init_db()
+conn.commit()
+conn.close()
+
+print("✅ Database initialized with email-based users")
