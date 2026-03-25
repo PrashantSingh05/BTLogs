@@ -13,7 +13,6 @@ def admin_required(func):
     return wrapper
 
 
-# ================= ADMIN PANEL =================
 @admin_bp.route('/admin')
 @admin_required
 def admin_panel():
@@ -26,7 +25,6 @@ def admin_panel():
     return render_template('admin.html', users=users)
 
 
-# ================= APPROVE =================
 @admin_bp.route('/approve/<int:user_id>/<role>')
 @admin_required
 def approve(user_id, role):
