@@ -28,7 +28,7 @@ def register():
 
         try:
             cursor.execute(
-                "INSERT INTO users (email, password, role) VALUES (?, ?, 'pending')",
+                "INSERT INTO users (email, password, role) VALUES (%s, %s, 'pending')",
                 (email, hashed)
             )
             db.commit()
@@ -50,7 +50,7 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        cursor.execute("SELECT * FROM users WHERE email=?", (email,))
+        cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
         user = cursor.fetchone()
 
         if user and check_password_hash(user['password'], password):
@@ -106,7 +106,7 @@ def reset_password(token):
         email = reset_tokens[token]
 
         cursor.execute(
-            "UPDATE users SET password=? WHERE email=?",
+            "UPDATE users SET password=%s WHERE email=%s",
             (hashed, email)
         )
 

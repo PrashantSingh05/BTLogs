@@ -3,4 +3,5 @@ Werkzeug
 python-dotenv
 flask-wtf
 flask-limiter
-flask-migrate
+psycopg2-binary
+gunicorn

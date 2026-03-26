@@ -1,12 +1,13 @@
-import sqlite3
+import psycopg2
 from flask import g
-from app.config import Config
+import os
+
 
 def get_db():
     if 'db' not in g:
-        g.db = sqlite3.connect(Config.DATABASE)
-        g.db.row_factory = sqlite3.Row
+        g.db = psycopg2.connect(os.environ.get("DATABASE_URL"))
     return g.db
+
 
 def close_db(e=None):
     db = g.pop('db', None)

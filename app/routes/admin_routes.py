@@ -32,7 +32,7 @@ def approve(user_id, role):
     cursor = db.cursor()
 
     cursor.execute(
-        "UPDATE users SET role=? WHERE id=?",
+        "UPDATE users SET role=%s WHERE id=%s",
         (role, user_id)
     )
     db.commit()

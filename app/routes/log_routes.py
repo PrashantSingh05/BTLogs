@@ -94,7 +94,7 @@ def edit(log_id):
         update_log(log_id, request.form)
         return redirect('/logs')  # ✅ refresh after edit
 
-    cursor.execute("SELECT * FROM logs WHERE id=?", (log_id,))
+    cursor.execute("SELECT * FROM logs WHERE id=%s", (log_id,))
     log = cursor.fetchone()
 
     return render_template('edit_log.html', log=log)
