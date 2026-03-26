@@ -4,6 +4,7 @@ from .database.db import get_db
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from werkzeug.security import generate_password_hash
 
 
 csrf = CSRFProtect()
@@ -17,7 +18,7 @@ def create_app():
     csrf.init_app(app)
     limiter.init_app(app)
 
-    # 🔥 REGISTER ROUTES
+    # ROUTES
     from .routes.auth_routes import auth_bp
     from .routes.log_routes import log_bp
     from .routes.admin_routes import admin_bp
@@ -26,11 +27,12 @@ def create_app():
     app.register_blueprint(log_bp)
     app.register_blueprint(admin_bp)
 
-    # 🔥 AUTO CREATE TABLES
+    # 🔥 DB INIT + ADMIN CREATION
     with app.app_context():
         db = get_db()
         cursor = db.cursor()
 
+        # CREATE TABLES
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
@@ -56,6 +58,19 @@ def create_app():
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """)
+
+        # 🔥 CREATE ADMIN IF NOT EXISTS
+        cursor.execute("SELECT * FROM users WHERE email=%s", ("admin@btlogs.com",))
+        admin = cursor.fetchone()
+
+        if not admin:
+            hashed = generate_password_hash("adminlogs")
+
+            cursor.execute(
+                "INSERT INTO users (email, password, role) VALUES (%s, %s, %s)",
+                ("admin@btlogs.com", hashed, "admin")
+            )
+            print("✅ Admin created")
 
         db.commit()
 
