@@ -7,9 +7,10 @@ def calculate_impact(downtime):
 
     downtime = float(downtime)
 
-    if downtime < 1:
+    # 🔥 UPDATED LOGIC
+    if downtime <= 1:
         return "low"
-    elif downtime <= 5:
+    elif downtime <= 4:
         return "medium"
     else:
         return "high"
@@ -40,7 +41,7 @@ def create_log(data):
         data.get('tags'),
         data.get('system_name'),
         data.get('created_by'),
-        data.get('incident_date')  # 🔥 NEW FIELD
+        data.get('incident_date')
     ))
 
     db.commit()
@@ -54,7 +55,6 @@ def get_all_logs():
     return cursor.fetchall()
 
 
-# 🔥 FILTER FUNCTION (POSTGRES FIXED)
 def filter_logs(start_date=None, end_date=None, system_name=None, search=None):
     db = get_db()
     cursor = db.cursor()
