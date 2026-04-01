@@ -6,7 +6,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from werkzeug.security import generate_password_hash
 
-
 csrf = CSRFProtect()
 limiter = Limiter(get_remote_address)
 
@@ -18,7 +17,6 @@ def create_app():
     csrf.init_app(app)
     limiter.init_app(app)
 
-    # ROUTES
     from .routes.auth_routes import auth_bp
     from .routes.log_routes import log_bp
     from .routes.admin_routes import admin_bp
@@ -27,51 +25,62 @@ def create_app():
     app.register_blueprint(log_bp)
     app.register_blueprint(admin_bp)
 
-    # 🔥 DB INIT + ADMIN CREATION
+    # 🔥 DB INIT + ADMIN + INCIDENT DATE
     with app.app_context():
-        db = get_db()
-        cursor = db.cursor()
+        try:
+            db = get_db()
+            cursor = db.cursor()
 
-        # CREATE TABLES
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            email TEXT UNIQUE,
-            password TEXT,
-            role TEXT
-        );
-        """)
+            # USERS
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                email TEXT UNIQUE,
+                password TEXT,
+                role TEXT
+            );
+            """)
 
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS logs (
-            id SERIAL PRIMARY KEY,
-            title TEXT,
-            description TEXT,
-            category TEXT,
-            action_type TEXT,
-            reason TEXT,
-            downtime FLOAT,
-            impact_level TEXT,
-            tags TEXT,
-            system_name TEXT,
-            created_by TEXT,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        """)
+            # LOGS (WITH INCIDENT DATE)
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS logs (
+                id SERIAL PRIMARY KEY,
+                title TEXT,
+                description TEXT,
+                category TEXT,
+                action_type TEXT,
+                reason TEXT,
+                downtime FLOAT,
+                impact_level TEXT,
+                tags TEXT,
+                system_name TEXT,
+                created_by TEXT,
+                incident_date DATE,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            """)
 
-        # 🔥 CREATE ADMIN IF NOT EXISTS
-        cursor.execute("SELECT * FROM users WHERE email=%s", ("admin@btlogs.com",))
-        admin = cursor.fetchone()
+            # ADD COLUMN IF OLD DB
+            try:
+                cursor.execute("ALTER TABLE logs ADD COLUMN incident_date DATE;")
+            except:
+                pass
 
-        if not admin:
-            hashed = generate_password_hash("adminlogs")
+            # ADMIN AUTO CREATE
+            cursor.execute("SELECT * FROM users WHERE email=%s", ("admin@btlogs.com",))
+            admin = cursor.fetchone()
 
-            cursor.execute(
-                "INSERT INTO users (email, password, role) VALUES (%s, %s, %s)",
-                ("admin@btlogs.com", hashed, "admin")
-            )
-            print("✅ Admin created")
+            if not admin:
+                hashed = generate_password_hash("adminlogs")
+                cursor.execute(
+                    "INSERT INTO users (email, password, role) VALUES (%s, %s, %s)",
+                    ("admin@btlogs.com", hashed, "admin")
+                )
 
-        db.commit()
+            db.commit()
+            print("✅ DB Ready")
+
+        except Exception as e:
+            print("❌ DB ERROR:", e)
 
     return app

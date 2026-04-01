@@ -2,24 +2,23 @@
 
 {% block content %}
 
-<h2 class="mb-4">Logs</h2>
+<h2 class="mb-4">System Records</h2>
 
-<div class="mb-3">
-<a href="/export_all" class="btn btn-success">Export All</a>
-</div>
+<div class="card shadow p-3">
 
-<form method="POST" action="/export_selected">
-
-<table class="table table-bordered table-hover">
+<table class="table table-hover table-bordered">
 
 <thead class="table-dark">
 <tr>
-<th>Select</th>
 <th>Title</th>
-<th>Action</th>
+<th>Category</th>
 <th>System</th>
+<th>Action</th>
 <th>Impact</th>
-<th>Time</th>
+<th>Incident Date</th>
+<th>Created By</th>
+<th>Created At</th>
+<th>Actions</th>
 </tr>
 </thead>
 
@@ -28,13 +27,15 @@
 {% for log in logs %}
 <tr>
 
+<td>{{ log['title'] }}</td>
+
 <td>
-<input type="checkbox" name="selected_logs" value="{{ log['id'] }}">
+<span class="badge bg-info">{{ log['category'] }}</span>
 </td>
 
-<td>{{ log['title'] }}</td>
-<td>{{ log['action_type'] }}</td>
 <td>{{ log['system_name'] }}</td>
+
+<td>{{ log['action_type'] }}</td>
 
 <td>
 {% if log['impact_level'] == 'high' %}
@@ -46,16 +47,24 @@
 {% endif %}
 </td>
 
+<td>{{ log['incident_date'] or "-" }}</td>
+
+<td>{{ log['created_by'] }}</td>
+
 <td>{{ log['timestamp'] }}</td>
+
+<td>
+<a href="/delete/{{ log['id'] }}" class="btn btn-sm btn-danger">Delete</a>
+<a href="/edit/{{ log['id'] }}" class="btn btn-sm btn-primary">Edit</a>
+</td>
 
 </tr>
 {% endfor %}
 
 </tbody>
+
 </table>
 
-<button class="btn btn-primary">Export Selected</button>
-
-</form>
+</div>
 
 {% endblock %}

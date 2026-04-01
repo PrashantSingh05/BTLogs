@@ -26,9 +26,9 @@ def create_log(data):
         INSERT INTO logs (
             title, description, category, action_type,
             reason, downtime, impact_level, tags,
-            system_name, created_by
+            system_name, created_by, incident_date
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
         data.get('title'),
         data.get('description'),
@@ -39,7 +39,8 @@ def create_log(data):
         impact,
         data.get('tags'),
         data.get('system_name'),
-        data.get('created_by')
+        data.get('created_by'),
+        data.get('incident_date')  # 🔥 NEW FIELD
     ))
 
     db.commit()
@@ -53,7 +54,7 @@ def get_all_logs():
     return cursor.fetchall()
 
 
-# 🔥 NEW FILTER FUNCTION
+# 🔥 FILTER FUNCTION (POSTGRES FIXED)
 def filter_logs(start_date=None, end_date=None, system_name=None, search=None):
     db = get_db()
     cursor = db.cursor()
@@ -62,24 +63,24 @@ def filter_logs(start_date=None, end_date=None, system_name=None, search=None):
     params = []
 
     if start_date:
-        query += " AND timestamp >= ?"
+        query += " AND timestamp >= %s"
         params.append(start_date)
 
     if end_date:
-        query += " AND timestamp <= ?"
+        query += " AND timestamp <= %s"
         params.append(end_date + " 23:59:59")
 
     if system_name:
-        query += " AND system_name LIKE ?"
+        query += " AND system_name ILIKE %s"
         params.append(f"%{system_name}%")
 
     if search:
-        query += " AND (title LIKE ? OR reason LIKE ? OR tags LIKE ?)"
+        query += " AND (title ILIKE %s OR reason ILIKE %s OR tags ILIKE %s)"
         params.extend([f"%{search}%", f"%{search}%", f"%{search}%"])
 
     query += " ORDER BY timestamp DESC"
 
-    cursor.execute(query, params)
+    cursor.execute(query, tuple(params))
     return cursor.fetchall()
 
 
@@ -87,7 +88,7 @@ def delete_log(log_id):
     db = get_db()
     cursor = db.cursor()
 
-    cursor.execute("DELETE FROM logs WHERE id=?", (log_id,))
+    cursor.execute("DELETE FROM logs WHERE id=%s", (log_id,))
     db.commit()
 
 
@@ -100,10 +101,10 @@ def update_log(log_id, data):
 
     cursor.execute("""
         UPDATE logs
-        SET title=?, description=?, category=?, action_type=?,
-            reason=?, downtime=?, impact_level=?, tags=?,
-            system_name=?, created_by=?
-        WHERE id=?
+        SET title=%s, description=%s, category=%s, action_type=%s,
+            reason=%s, downtime=%s, impact_level=%s, tags=%s,
+            system_name=%s, created_by=%s, incident_date=%s
+        WHERE id=%s
     """, (
         data.get('title'),
         data.get('description'),
@@ -115,6 +116,7 @@ def update_log(log_id, data):
         data.get('tags'),
         data.get('system_name'),
         data.get('created_by'),
+        data.get('incident_date'),
         log_id
     ))
 

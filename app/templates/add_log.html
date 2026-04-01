@@ -6,7 +6,6 @@
 
 <form method="POST">
 
-<!-- 🔐 CSRF TOKEN -->
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
 <label class="form-label">Title</label>
@@ -44,6 +43,10 @@
 
 <label class="form-label">User</label>
 <input name="created_by" class="form-control mb-3">
+
+<!-- 🔥 NEW FIELD -->
+<label class="form-label">Incident Date</label>
+<input type="date" name="incident_date" class="form-control mb-3">
 
 <button class="btn btn-primary">Save</button>
 
